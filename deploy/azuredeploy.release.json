@@ -1,0 +1,326 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "telepathyStorageType": {
+            "type": "string",
+            "defaultValue": "Standard_LRS",
+            "allowedValues": [
+                "Standard_LRS",
+                "Standard_ZRS",
+                "Standard_GRS",
+                "Standard_RAGRS",
+                "Premium_LRS"
+            ]
+        },
+        "userAssignedIdentity": {
+            "type": "string",
+            "metadata": {
+                "description": "Managed User Identity"
+            }
+        },
+        "telepathyAKSName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the AKS Cluster resource."
+            },
+            "defaultValue": "telepathyakscluster"
+        },
+        "kubernetesVersion": {
+            "type": "string",
+            "defaultValue": "1.16.13",
+            "allowedValues": [
+                "1.16.13",
+                "1.14.8",
+                "1.14.7",
+                "1.13.12",
+                "1.13.11",
+                "1.12.8",
+                "1.12.7",
+                "1.11.10",
+                "1.11.9",
+                "1.10.13",
+                "1.10.12"
+            ],
+            "metadata": {
+                "description": "The version of Kubernetes."
+            }
+        },
+        "AKSAgentCount": {
+            "type": "int",
+            "defaultValue": 3,
+            "metadata": {
+                "description": "The number of nodes for the cluster."
+            },
+            "minValue": 1,
+            "maxValue": 50
+        },
+        "AKSAgentVMSize": {
+            "type": "string",
+            "defaultValue": "Standard_DS2_v2",
+            "metadata": {
+                "description": "The size of the Kubernetes host virtual machine."
+            }
+        },
+        "AKSAdminUsername": {
+            "type": "string",
+            "metadata": {
+                "description": "User name for the Linux Virtual Machines (Kubernetes)."
+            },
+            "defaultValue": "telepathyuser"
+        },
+        "SSHPublicKey": {
+            "type": "string",
+            "metadata": {
+                "description": "Configure all linux machines with the SSH RSA public key string."
+            }
+        },
+        "servicePrincipalClientId": {
+            "type": "string",
+            "metadata": {
+                "description": "Service Principal Client ID used by AKS."
+            }
+        },
+        "servicePrincipalClientSecret": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Service Principal Client Secret used by AKS."
+            }
+        },
+        "newOrExistingBatchAccount": {
+            "type": "string",
+            "defaultValue": "new",
+            "allowedValues": [
+                "new",
+                "existing"
+            ],
+            "metadata": {
+                "description": "New or using existing BatchAccount, existing BatchAccount must be in the same location"
+            }
+        },
+        "batchAccountsResourceGroup": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().name]",
+            "metadata": {
+                "description": "Batch Account Resource Group"
+            }
+        },
+        "batchAccountsName": {
+            "type": "string",
+            "defaultValue": "[concat(toLower(uniqueString(resourceGroup().id)), 'batch')]",
+            "metadata": {
+                "description": "Batch Account Name"
+            }
+        },
+        "batchAccountsPoolName": {
+            "type": "string",
+            "defaultValue": "[concat(toLower(uniqueString(resourceGroup().id)), 'batchpool')]",
+            "metadata": {
+                "description": "Batch Account Pool Name"
+            }
+        },
+        "batchPoolVMSize": {
+            "type": "string",
+            "defaultValue": "STANDARD_D2_V2"
+        },
+        "maxTasksPerNode": {
+            "type": "int",
+            "defaultValue": 1,
+            "minValue": 1,
+            "metadata": {
+                "description": "The maximun number of tasks per node in Batch Pool"
+            }
+        },
+        "targetDedicatedNodes": {
+            "type": "int",
+            "defaultValue": 1,
+            "minValue": 0,
+            "metadata": {
+                "description": "The number of target dedicated nodes in batch pool"
+            }
+        },
+        "targetLowPriorityNodes": {
+            "type": "int",
+            "defaultValue": 0,
+            "minValue": 0,
+            "metadata": {
+                "description": "The number of target low priority nodes in batch pool"
+            }
+        },
+        "newOrExistingVnet": {
+            "type": "string",
+            "defaultValue": "new",
+            "allowedValues": [
+                "new",
+                "existing"
+            ],
+            "metadata": {
+                "description": "New or using existing Virtual Network"
+            }
+        },
+        "vnetResourceGroup": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().name]",
+            "metadata": {
+                "description": "Resource group in which the vnet locates"
+            }
+        },
+        "vnetName": {
+            "type": "string",
+            "defaultValue": "telepathyvnet",
+            "metadata": {
+                "description": "Virtual Network Name"
+            }
+        },
+        "batchSubnetName": {
+            "type": "string",
+            "defaultValue": "telepathybatchsubnet",
+            "metadata": {
+                "description": "Subnet for Azure Batch Deployment"
+            }
+        },
+        "aksSubnetName": {
+            "type": "string",
+            "defaultValue": "telepathyakssubnet",
+            "metadata": {
+                "description": "Subnet for Azure Kubernetes Service"
+            }
+        },
+        "forceUpdateTag": {
+            "type": "string",
+            "defaultValue": "[utcNow()]"
+        }
+    },
+    "variables": {
+        "vnetSubnetId": "[resourceId(parameters('vnetResourceGroup'),'Microsoft.Network/virtualNetworks/subnets',parameters('vnetName'),parameters('aksSubnetName'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2018-05-01",
+            "name": "basicResourceTemplate",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/HyphonGuo/pipelines-javascript-docker/master/deploy/azuredeploy.basic.json"
+                },
+                "parameters": {
+                    "telepathyStorageType": {
+                        "value": "[parameters('telepathyStorageType')]"
+                    },
+                    "newOrExistingBatchAccount": {
+                        "value": "[parameters('newOrExistingBatchAccount')]"
+                    },
+                    "batchAccountsResourceGroup": {
+                        "value": "[parameters('batchAccountsResourceGroup')]"
+                    },
+                    "batchAccountsName": {
+                        "value": "[parameters('batchAccountsName')]"
+                    },
+                    "batchAccountsPoolName": {
+                        "value": "[parameters('batchAccountsPoolName')]"
+                    },
+                    "batchPoolVMSize": {
+                        "value": "[parameters('batchPoolVMSize')]"
+                    },
+                    "maxTasksPerNode": {
+                        "value": "[parameters('maxTasksPerNode')]"
+                    },
+                    "targetDedicatedNodes": {
+                        "value": "[parameters('targetDedicatedNodes')]"
+                    },
+                    "targetLowPriorityNodes": {
+                        "value": "[parameters('targetLowPriorityNodes')]"
+                    },
+                    "newOrExistingVnet": {
+                        "value": "[parameters('newOrExistingVnet')]"
+                    },
+                    "vnetResourceGroup": {
+                        "value": "[parameters('vnetResourceGroup')]"
+                    },
+                    "vnetName": {
+                        "value": "[parameters('vnetName')]"
+                    },
+                    "batchSubnetName": {
+                        "value": "[parameters('batchSubnetName')]"
+                    },
+                    "aksSubnetName": {
+                        "value": "[parameters('aksSubnetName')]"
+                    }
+                }
+            }
+        },
+        {
+            "name": "[parameters('telepathyAKSName')]",
+            "type": "Microsoft.ContainerService/managedClusters",
+            "dependsOn": [
+                "basicResourceTemplate"
+            ],
+            "apiVersion": "2020-02-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "kubernetesVersion": "[parameters('kubernetesVersion')]",
+                "dnsPrefix": "[concat(parameters('telepathyAKSName'), '-dns')]",
+                "agentPoolProfiles": [
+                    {
+                        "name": "agentpool",
+                        "type": "VirtualMachineScaleSets",
+                        "osDiskSizeGB": 0,
+                        "count": "[parameters('AKSAgentCount')]",
+                        "vmSize": "[parameters('AKSAgentVMSize')]",
+                        "osType": "Linux",
+                        "storageProfile": "ManagedDisks",
+                        "vnetSubnetID": "[variables('vnetSubnetId')]"
+                    }
+                ],
+                "linuxProfile": {
+                    "adminUsername": "[parameters('AKSAdminUsername')]",
+                    "ssh": {
+                        "publicKeys": [
+                            {
+                                "keyData": "[parameters('SSHPublicKey')]"
+                            }
+                        ]
+                    }
+                },
+                "servicePrincipalProfile": {
+                    "clientId": "[parameters('servicePrincipalClientId')]",
+                    "secret": "[parameters('servicePrincipalClientSecret')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deploymentScripts",
+            "apiVersion": "2019-10-01-preview",
+            "name": "AKSDeploymentScript",
+            "dependsOn": [
+                "basicResourceTemplate",
+                "[parameters('telepathyAKSName')]"
+            ],
+            "location": "[resourceGroup().location]",
+            "kind": "AzurePowerShell",
+            "identity": {
+                "type": "userAssigned",
+                "userAssignedIdentities": {
+                    "[parameters('userAssignedIdentity')]": {
+                    }
+                }
+            },
+            "properties": {
+                "forceUpdateTag": "[parameters('forceUpdateTag')]",
+                "azPowerShellVersion": "4.5",
+                "primaryScriptURI": "https://raw.githubusercontent.com/HyphonGuo/pipelines-javascript-docker/master/deploy/deployScripts/deploy2aks.ps1",
+                "arguments": "[concat('-resourceGroup', ' ', resourceGroup().name, ' ', '-aksClusterName', ' ', parameters('telepathyAKSName'))]",
+                "timeout": "PT1H",
+                "cleanupPreference": "Always",
+                "retentionInterval": "P1D"
+            }
+        }
+    ],
+    "outputs": {
+        "kubernetesControlPlaneFQDN": {
+            "type": "string",
+            "value": "[reference(concat('Microsoft.ContainerService/managedClusters/', parameters('telepathyAKSName'))).fqdn]"
+        }
+    }
+}

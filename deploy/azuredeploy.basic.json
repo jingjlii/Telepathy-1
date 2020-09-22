@@ -1,0 +1,260 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "telepathyStorageType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_ZRS",
+        "Standard_GRS",
+        "Standard_RAGRS",
+        "Premium_LRS"
+      ]
+    },
+    "newOrExistingBatchAccount": {
+      "type": "string",
+      "defaultValue": "new",
+      "allowedValues": [
+        "new",
+        "existing"
+      ],
+      "metadata": {
+        "description": "New or using existing BatchAccount, existing BatchAccount must be in the same location"
+      }
+    },
+    "batchAccountsResourceGroup": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]",
+      "metadata": {
+        "description": "Batch Account Resource Group"
+      }
+    },
+    "batchAccountsName": {
+      "type": "string",
+      "defaultValue": "[concat(toLower(uniqueString(resourceGroup().id)), 'batch')]",
+      "metadata": {
+        "description": "Batch Account Name"
+      }
+    },
+    "batchAccountsPoolName": {
+      "type": "string",
+      "defaultValue": "[concat(toLower(uniqueString(resourceGroup().id)), 'batchpool')]",
+      "metadata": {
+        "description": "Batch Account Pool Name"
+      }
+    },
+    "batchPoolVMSize": {
+      "type": "string",
+      "defaultValue": "STANDARD_D2_V2"
+    },
+    "maxTasksPerNode": {
+      "type": "int",
+      "defaultValue": 1,
+      "minValue": 1,
+      "metadata": {
+        "description": "The maximun number of tasks per node in Batch Pool"
+      }
+    },
+    "targetDedicatedNodes": {
+      "type": "int",
+      "defaultValue": 1,
+      "minValue": 0,
+      "metadata": {
+        "description": "The number of target dedicated nodes in batch pool"
+      }
+    },
+    "targetLowPriorityNodes": {
+      "type": "int",
+      "defaultValue": 0,
+      "minValue": 0,
+      "metadata": {
+        "description": "The number of target low priority nodes in batch pool"
+      }
+    },
+    "newOrExistingVnet": {
+      "type": "string",
+      "defaultValue": "new",
+      "allowedValues": [
+        "new",
+        "existing"
+      ],
+      "metadata": {
+        "description": "New or using existing Virtual Network"
+      }
+    },
+    "vnetResourceGroup": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]",
+      "metadata": {
+        "description": "Resource group in which the vnet locates"
+      }
+    },
+    "vnetName": {
+      "type": "string",
+      "defaultValue": "telepathyvnet",
+      "metadata": {
+        "description": "Virtual Network Name"
+      }
+    },
+    "batchSubnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Subnet for Azure Batch Deployment"
+      }
+    },
+    "aksSubnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Subnet for Azure Kubernetes Service"
+      }
+    }
+  },
+  "variables": {
+    "telepathyLogAnalyticsWorkspaceName": "[concat('telepathyLogAnalyticsWorkspace', uniqueString(resourceGroup().id))]",
+    "telepathyStorageName": "[concat('storage', uniqueString(resourceGroup().id))]",
+    "telepathyVMSubnetRef": "[concat(variables('telepathyVMVnetID'), '/subnets/', variables('telepathyBatchSubnetName'))]",
+    "telepathyVMVnetID": "[resourceId(variables('telepathyVnetResourceGroup'),'Microsoft.Network/virtualNetworks',parameters('vnetName'))]",
+    "telepathyVnetPrefix": "10.10.0.0/16",
+    "telepathyVnetResourceGroup": "[parameters('vnetResourceGroup')]",
+    "telepathyAksSubnetName": "[parameters('aksSubnetName')]",
+    "telepathyAksSubnetPrefix": "10.10.0.0/24",
+    "telepathyBatchSubnetName": "[parameters('batchSubnetName')]",
+    "telepathyBatchSubnetPrefix": "10.10.1.0/24"
+  },
+  "resources": [
+    {
+      "condition": "[equals(parameters('newOrExistingBatchAccount'), 'new')]",
+      "type": "Microsoft.Batch/batchAccounts",
+      "apiVersion": "2019-08-01",
+      "name": "[parameters('batchAccountsName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "poolAllocationMode": "BatchService"
+      }
+    },
+    {
+      "condition": "[equals(parameters('newOrExistingBatchAccount'), 'new')]",
+      "type": "Microsoft.Batch/batchAccounts/pools",
+      "apiVersion": "2019-08-01",
+      "name": "[concat(parameters('batchAccountsName'), '/', parameters('batchAccountsPoolName'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Batch/batchAccounts', parameters('batchAccountsName'))]"
+      ],
+      "properties": {
+        "vmSize": "[parameters('batchPoolVMSize')]",
+        "interNodeCommunication": "Disabled",
+        "maxTasksPerNode": "[parameters('maxTasksPerNode')]",
+        "taskSchedulingPolicy": {
+          "nodeFillType": "Spread"
+        },
+        "deploymentConfiguration": {
+          "virtualMachineConfiguration": {
+            "imageReference": {
+              "publisher": "MicrosoftWindowsServer",
+              "offer": "WindowsServer",
+              "sku": "2019-Datacenter",
+              "version": "latest"
+            },
+            "nodeAgentSkuId": "batch.node.windows amd64",
+            "windowsConfiguration": {
+              "enableAutomaticUpdates": false
+            }
+          }
+        },
+        "networkConfiguration": {
+          "subnetId": "[variables('telepathyVMSubnetRef')]"
+        },
+        "scaleSettings": {
+          "fixedScale": {
+            "targetDedicatedNodes": "[parameters('targetDedicatedNodes')]",
+            "targetLowPriorityNodes": "[parameters('targetLowPriorityNodes')]",
+            "resizeTimeout": "PT15M"
+          }
+        }
+      }
+    },
+    {
+      "name": "[variables('telepathyStorageName')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2019-04-01",
+      "sku": {
+        "name": "[parameters('telepathyStorageType')]"
+      },
+      "dependsOn": [
+      ],
+      "tags": {
+        "displayName": "telepathyStorage"
+      },
+      "kind": "Storage"
+    },
+    {
+      "condition": "[equals(parameters('newOrExistingVnet'), 'new')]",
+      "name": "[parameters('vnetName')]",
+      "type": "Microsoft.Network/virtualNetworks",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2019-09-01",
+      "dependsOn": [
+      ],
+      "tags": {
+        "displayName": "telepathyVnet"
+      },
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('telepathyVnetPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('telepathyBatchSubnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('telepathyBatchSubnetPrefix')]"
+            }
+          },
+          {
+            "name": "[variables('telepathyAksSubnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('telepathyAksSubnetPrefix')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "name": "[variables('telepathyLogAnalyticsWorkspaceName')]",
+      "apiVersion": "2015-11-01-preview",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "features": {
+          "searchVersion": 1
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "storageName": {
+      "type": "string",
+      "value": "[variables('telepathyStorageName')]"
+    },
+    "storageAccountKey": {
+      "type": "string",
+      "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('telepathyStorageName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]"
+    },
+    "batchAccountKey": {
+      "type": "string",
+      "value": "[listKeys(resourceId(parameters('batchAccountsResourceGroup'), 'Microsoft.Batch/batchAccounts', parameters('batchAccountsName')), '2017-09-01').primary]"
+    },
+    "logWorkspaceId": {
+      "type": "string",
+      "value": "[reference(variables('telepathyLogAnalyticsWorkspaceName'), '2015-11-01-preview').customerId]"
+    },
+    "logWorksapceKey": {
+      "type": "string",
+      "value": "[listKeys(variables('telepathyLogAnalyticsWorkspaceName'), '2015-11-01-preview').primarySharedKey]"
+    }
+  }
+}
