@@ -6,9 +6,8 @@ Microsoft Telepathy is a SOA runtime framework works in a cloud native way, enab
 
 ## Deploy to Azure
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FHyphonGuo%2Fpipelines-javascript-docker%2Fmaster%2Fdeploy%2Fazuredeploy.release.json)
-[![Visualize](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/visualizebutton.svg?sanitize=true)](http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2FHyphonGuo%2Fpipelines-javascript-docker%2Fmaster%2Fdeploy%2Fazuredeploy.release.json)
-
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FHyphonGuo%2FTelepathy%2Fdev-integration%2Fdeploy%2Fazuredeploy.release.json)
+[![Visualize](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/visualizebutton.svg?sanitize=true)](http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2FHyphonGuo%2FTelepathy%2Fdev-integration%2Fdeploy%2Fazuredeploy.release.json)
 ## Current State
 
 We are now focusing on our new v2 design and implementation. We have pre-relased our v1.0.0.final version.

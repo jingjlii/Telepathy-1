@@ -309,7 +309,7 @@
             "properties": {
                 "forceUpdateTag": "[parameters('forceUpdateTag')]",
                 "azPowerShellVersion": "4.5",
-                "primaryScriptURI": "https://raw.githubusercontent.com/HyphonGuo/pipelines-javascript-docker/master/deploy/deployScripts/deploy2aks.ps1",
+                "primaryScriptURI": "https://raw.githubusercontent.com/HyphonGuo/Telepathy/dev-integration/deploy/scripts/deploy2aks.ps1",
                 "arguments": "[concat('-resourceGroup', ' ', resourceGroup().name, ' ', '-aksClusterName', ' ', parameters('telepathyAKSName'))]",
                 "timeout": "PT1H",
                 "cleanupPreference": "Always",
