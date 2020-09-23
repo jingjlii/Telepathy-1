@@ -183,7 +183,7 @@
     },
     "variables": {
         "vnetSubnetId": "[resourceId(parameters('vnetResourceGroup'),'Microsoft.Network/virtualNetworks/subnets',parameters('vnetName'),parameters('aksSubnetName'))]"
-        },
+    },
     "resources": [
         {
             "type": "Microsoft.Resources/deployments",

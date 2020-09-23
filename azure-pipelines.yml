@@ -1,0 +1,107 @@
+trigger:
+- master
+
+resources:
+- repo: self
+
+variables:
+  # Container registry service connection established during pipeline creation
+  dockerRegistryServiceConnection: 'fdcc5225-3a32-4448-bfb1-61a524dbe2a1'
+  containerRegistry: 'telerepo.azurecr.io'
+  dispatcherDockerfile: 'dispatcher/Dockerfile'
+  sessionDockerfile: 'Dockerfile.session'
+  frontendDockerfile: 'Dockerfile.frontend'
+  
+  # Agent VM image name
+  vmImageName: 'ubuntu-latest'
+
+stages:
+- stage: Build
+  displayName: Build and push images
+  jobs:  
+  - job: buildDispatcher
+    displayName: Build dispatcher image
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: Docker@2
+      displayName: Build and push dispatcher image to ACR
+      inputs:
+        command: buildAndPush
+        repository: telepathydispatcher
+        dockerfile: $(dispatcherDockerfile)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(Build.BuildId)
+          latest
+  
+  - job: buildSession
+    displayName: Build session image
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: Docker@2
+      displayName: Build and push session image to ACR
+      inputs:
+        command: buildAndPush
+        repository: telepathysession
+        dockerfile: $(sessionDockerfile)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(Build.BuildId)
+          latest
+
+  - job: buildFrontend
+    displayName: Build frontend image
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: Docker@2
+      displayName: Build and push frontend image to ACR
+      inputs:
+        command: buildAndPush
+        repository: telepathyfrontend
+        dockerfile: $(frontendDockerfile)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(Build.BuildId)
+          latest
+
+- stage: Deploy
+  displayName: Deploy stage
+  dependsOn: Build
+
+  jobs:
+  - job: ARMDeployment
+    displayName: Deploy ARM resources
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+      - task: AzureResourceManagerTemplateDeployment@3
+        inputs:
+          deploymentScope: 'Resource Group'
+          azureResourceManagerConnection: 'BigCompS-Ints(ecbcc285-0c16-49e3-bb6b-2378f03ac3b8)'
+          subscriptionId: 'ecbcc285-0c16-49e3-bb6b-2378f03ac3b8'
+          action: 'Create Or Update Resource Group'
+          resourceGroupName: 'haiguoapp'
+          location: 'East US'
+          templateLocation: 'URL of the file'
+          csmFileLink: 'https://raw.githubusercontent.com/HyphonGuo/pipelines-javascript-docker/master/deploy/azuredeploy.json'
+          csmParametersFileLink: 'https://raw.githubusercontent.com/HyphonGuo/pipelines-javascript-docker/master/deploy/azuredeploy.parameters.json'
+          deploymentMode: 'Incremental'
+          
+  - job: DeployContainer
+    displayName: Deploy to AKS
+    dependsOn: ARMDeployment
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+      - task: AzureCLI@2
+        inputs:
+          azureSubscription: 'BigCompS-Ints(ecbcc285-0c16-49e3-bb6b-2378f03ac3b8)'
+          scriptType: 'pscore'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            az aks get-credentials --resource-group $(resourceGroup) --name $(aksClusterName)
+            kubectl apply -f $(Build.SourcesDirectory)/manifests
+          addSpnToEnvironment: true
