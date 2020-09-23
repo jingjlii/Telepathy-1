@@ -1,6 +1,8 @@
 trigger:
 - master
 
+pr:
+
 resources:
 - repo: self
 
@@ -11,14 +13,17 @@ variables:
   dispatcherDockerfile: 'dispatcher/Dockerfile'
   sessionDockerfile: 'Dockerfile.session'
   frontendDockerfile: 'Dockerfile.frontend'
+  resourceGroup: 'haiguoteletest'
+  aksClusterName: 'telepathyakscluster'
   
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
 
 stages:
+
 - stage: Build
-  displayName: Build and push images
-  jobs:  
+  displayName: Build stage
+  jobs:
   - job: buildDispatcher
     displayName: Build dispatcher image
     pool:
@@ -77,17 +82,25 @@ stages:
     pool:
       vmImage: $(vmImageName)
     steps:
+      - task: AzureKeyVault@1
+        inputs:
+          azureSubscription: 'Subscription-1(a486e243-747b-42de-8c4c-379f8295a746)'
+          KeyVaultName: 'haiguopipelinevault'
+          SecretsFilter: '*'
+
+          RunAsPreJob: true
+
       - task: AzureResourceManagerTemplateDeployment@3
         inputs:
           deploymentScope: 'Resource Group'
-          azureResourceManagerConnection: 'BigCompS-Ints(ecbcc285-0c16-49e3-bb6b-2378f03ac3b8)'
-          subscriptionId: 'ecbcc285-0c16-49e3-bb6b-2378f03ac3b8'
+          azureResourceManagerConnection: 'Subscription-1(a486e243-747b-42de-8c4c-379f8295a746)'
+          subscriptionId: 'a486e243-747b-42de-8c4c-379f8295a746'
           action: 'Create Or Update Resource Group'
-          resourceGroupName: 'haiguoapp'
+          resourceGroupName: '$(resourceGroup)'
           location: 'East US'
           templateLocation: 'URL of the file'
-          csmFileLink: 'https://raw.githubusercontent.com/HyphonGuo/pipelines-javascript-docker/master/deploy/azuredeploy.json'
-          csmParametersFileLink: 'https://raw.githubusercontent.com/HyphonGuo/pipelines-javascript-docker/master/deploy/azuredeploy.parameters.json'
+          csmFileLink: 'https://github.com/HyphonGuo/Telepathy/blob/dev-integration/deploy/azuredeploy.json'
+          overrideParameters: '-userAssignedIdentity "/subscriptions/a486e243-747b-42de-8c4c-379f8295a746/resourceGroups/haiguoteleid/providers/Microsoft.ManagedIdentity/userAssignedIdentities/haiguotelepathyid" -SSHPublicKey $(SshPublicKey) -servicePrincipalClientId "f510c0e6-16ea-48d3-9c5f-b1a3ecde4055" -servicePrincipalClientSecret $(aksSpSecret)'
           deploymentMode: 'Incremental'
           
   - job: DeployContainer
@@ -98,10 +111,13 @@ stages:
     steps:
       - task: AzureCLI@2
         inputs:
-          azureSubscription: 'BigCompS-Ints(ecbcc285-0c16-49e3-bb6b-2378f03ac3b8)'
+          azureSubscription: 'Subscription-1(a486e243-747b-42de-8c4c-379f8295a746)'
           scriptType: 'pscore'
           scriptLocation: 'inlineScript'
           inlineScript: |
             az aks get-credentials --resource-group $(resourceGroup) --name $(aksClusterName)
-            kubectl apply -f $(Build.SourcesDirectory)/manifests
+            kubectl apply -f $(Build.SourcesDirectory)/deploy/manifests/
           addSpnToEnvironment: true
+
+
+
