@@ -331,7 +331,7 @@
             "dependsOn": [
                 "basicResourceTemplate",
                 "[concat('Microsoft.ContainerService/managedClusters/', parameters('telepathyAKSName'))]",
-                "[concat('Microsoft.Cache/Redis/', parameters('telepathyRedisCacheName'))]",
+                "[concat('Microsoft.Cache/Redis/', parameters('telepathyRedisCacheName'))]"
             ],
             "location": "[resourceGroup().location]",
             "kind": "AzurePowerShell",
