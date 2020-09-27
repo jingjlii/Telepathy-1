@@ -18,7 +18,7 @@ $redisAccessKeys = Get-AzRedisCacheKey -ResourceGroupName $resourceGroup -Name $
 curl "https://codeload.github.com/HyphonGuo/Telepathy/tar.gz/dev-integration" --output "archive.tar.gz"
 tar -xzf "archive.tar.gz"
 
-kubectl apply -f "Telepathy-dev-integration/deploy/manifests/dispather.yaml"
+kubectl apply -f "Telepathy-dev-integration/deploy/manifests/dispatcher.yaml"
 
 $dispatcherIpAddress = [System.Net.IPAddress]::None
 
