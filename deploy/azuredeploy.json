@@ -310,6 +310,7 @@
                     "name": "Premium",
                     "family": "P",
                     "capacity": 5,
+                    "enableNonSslPort": true,
                     "subnetId": "[variables('redisSubnetId')]"
                 }
             }

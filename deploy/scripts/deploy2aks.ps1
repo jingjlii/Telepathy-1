@@ -20,7 +20,7 @@ tar -xzf "archive.tar.gz"
 
 kubectl apply -f "Telepathy-dev-integration/deploy/manifests/dispather.yaml"
 
-[ref] $dispatcherIpAddress = [System.Net.IPAddress]::None
+$dispatcherIpAddress = [System.Net.IPAddress]::None
 
 while (True) {
     $serviceInfo = kubectl get service

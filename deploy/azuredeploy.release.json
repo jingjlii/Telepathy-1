@@ -319,6 +319,7 @@
                 "sku": {
                     "name": "Premium",
                     "family": "P",
+                    "enableNonSslPort": true,
                     "capacity": 5,
                     "subnetId": "[variables('redisSubnetId')]"
                 }
