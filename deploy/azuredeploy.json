@@ -300,6 +300,9 @@
         {
             "name": "[parameters('telepathyRedisCacheName')]",
             "type": "Microsoft.Cache/Redis",
+            "dependsOn": [
+                "basicResourceTemplate"
+            ],
             "apiVersion": "2019-07-01",
             "location": "[resourceGroup().location]",
             "properties": {
