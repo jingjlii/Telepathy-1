@@ -347,7 +347,7 @@
                 "forceUpdateTag": "[parameters('forceUpdateTag')]",
                 "azPowerShellVersion": "4.5",
                 "primaryScriptURI": "https://raw.githubusercontent.com/HyphonGuo/Telepathy/dev-integration/deploy/scripts/deploy2aks.ps1",
-                "arguments": "[concat('-resourceGroup', ' ', resourceGroup().name, ' ', '-aksClusterName', ' ', parameters('telepathyAKSName'))]",
+                "arguments": "[concat('-resourceGroup', ' ', resourceGroup().name, ' ', '-aksClusterName', ' ', parameters('telepathyAKSName'), ' ', '-redisCacheName', ' ', parameters('telepathyRedisCacheName'))]",
                 "timeout": "PT1H",
                 "cleanupPreference": "Always",
                 "retentionInterval": "P1D"
