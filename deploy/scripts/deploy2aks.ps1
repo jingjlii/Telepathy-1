@@ -23,7 +23,7 @@ kubectl apply -f "Telepathy-dev-integration/deploy/manifests/dispatcher.yaml"
 
 $dispatcherIpAddress = [System.Net.IPAddress]::None
 
-while (True) {
+while ($true) {
     $serviceInfo = kubectl get service
     $isValidIpAddress = $false
     foreach ($service in $serviceInfo) {
