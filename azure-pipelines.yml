@@ -1,8 +1,6 @@
 trigger:
 - master
 
-pr:
-
 resources:
 - repo: self
 
@@ -87,7 +85,6 @@ stages:
           azureSubscription: 'Subscription-1(a486e243-747b-42de-8c4c-379f8295a746)'
           KeyVaultName: 'haiguopipelinevault'
           SecretsFilter: '*'
-
           RunAsPreJob: true
 
       - task: AzureResourceManagerTemplateDeployment@3

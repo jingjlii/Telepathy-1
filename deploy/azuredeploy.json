@@ -20,6 +20,13 @@
             },
             "defaultValue": "telepathyakscluster"
         },
+        "telepathyRedisCacheName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the AKS Cluster resource."
+            },
+            "defaultValue": "telepathyrediscache"
+        },
         "kubernetesVersion": {
             "type": "string",
             "defaultValue": "1.16.13",
@@ -179,10 +186,18 @@
             "metadata": {
                 "description": "Subnet for Azure Kubernetes Service"
             }
+        },
+        "redisSubnetName": {
+            "type": "string",
+            "defaultValue": "telepathyredissubnet",
+            "metadata": {
+                "description": "Subnet for Azure Redis Cache"
+            }
         }
     },
     "variables": {
-        "vnetSubnetId": "[resourceId(parameters('vnetResourceGroup'),'Microsoft.Network/virtualNetworks/subnets',parameters('vnetName'),parameters('aksSubnetName'))]"
+        "aksSubnetId": "[resourceId(parameters('vnetResourceGroup'),'Microsoft.Network/virtualNetworks/subnets',parameters('vnetName'),parameters('aksSubnetName'))]",
+        "redisSubnetId": "[resourceId(parameters('vnetResourceGroup'),'Microsoft.Network/virtualNetworks/subnets',parameters('vnetName'),parameters('redisSubnetName'))]"
     },
     "resources": [
         {
@@ -236,6 +251,9 @@
                     },
                     "aksSubnetName": {
                         "value": "[parameters('aksSubnetName')]"
+                    },
+                    "redisSubnetName": {
+                        "value": "[parameters('redisSubnetName')]"
                     }
                 }
             }
@@ -260,7 +278,7 @@
                         "vmSize": "[parameters('AKSAgentVMSize')]",
                         "osType": "Linux",
                         "storageProfile": "ManagedDisks",
-                        "vnetSubnetID": "[variables('vnetSubnetId')]"
+                        "vnetSubnetID": "[variables('aksSubnetId')]"
                     }
                 ],
                 "linuxProfile": {
@@ -276,6 +294,20 @@
                 "servicePrincipalProfile": {
                     "clientId": "[parameters('servicePrincipalClientId')]",
                     "secret": "[parameters('servicePrincipalClientSecret')]"
+                }
+            }
+        },
+        {
+            "name": "[parameters('telepathyRedisCacheName')]",
+            "type": "Microsoft.Cache/Redis",
+            "apiVersion": "2019-07-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "sku": {
+                    "name": "Premium",
+                    "family": "P",
+                    "capacity": 5,
+                    "subnetId": "[variables('redisSubnetId')]"
                 }
             }
         }

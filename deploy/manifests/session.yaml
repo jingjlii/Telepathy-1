@@ -39,7 +39,7 @@ spec:
               cpu: "1" 
           env:
           - name: TELEPATHY_DISPATCHER_IP
-            value: "20.44.172.46"
+            value: $(DISPATCHER_IP_ADDRESS)
           - name: TELEPATHY_SESSION_CONFIG_PATH
             value: "/app/session.json"
           - name: TELEPATHY_WORKING_DIR

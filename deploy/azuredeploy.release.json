@@ -26,6 +26,13 @@
             },
             "defaultValue": "telepathyakscluster"
         },
+        "telepathyRedisCacheName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the AKS Cluster resource."
+            },
+            "defaultValue": "telepathyrediscache"
+        },
         "kubernetesVersion": {
             "type": "string",
             "defaultValue": "1.16.13",
@@ -186,13 +193,21 @@
                 "description": "Subnet for Azure Kubernetes Service"
             }
         },
+        "redisSubnetName": {
+            "type": "string",
+            "defaultValue": "telepathyredissubnet",
+            "metadata": {
+                "description": "Subnet for Azure Redis Cache"
+            }
+        },
         "forceUpdateTag": {
             "type": "string",
             "defaultValue": "[utcNow()]"
         }
     },
     "variables": {
-        "vnetSubnetId": "[resourceId(parameters('vnetResourceGroup'),'Microsoft.Network/virtualNetworks/subnets',parameters('vnetName'),parameters('aksSubnetName'))]"
+        "vnetSubnetId": "[resourceId(parameters('vnetResourceGroup'),'Microsoft.Network/virtualNetworks/subnets',parameters('vnetName'),parameters('aksSubnetName'))]",
+        "redisSubnetId": "[resourceId(parameters('vnetResourceGroup'),'Microsoft.Network/virtualNetworks/subnets',parameters('vnetName'),parameters('redisSubnetName'))]"
     },
     "resources": [
         {
@@ -246,6 +261,9 @@
                     },
                     "aksSubnetName": {
                         "value": "[parameters('aksSubnetName')]"
+                    },
+                    "redisSubnetName": {
+                        "value": "[parameters('redisSubnetName')]"
                     }
                 }
             }
@@ -290,12 +308,26 @@
             }
         },
         {
+            "name": "[parameters('telepathyRedisCacheName')]",
+            "type": "Microsoft.Cache/Redis",
+            "apiVersion": "2019-07-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "sku": {
+                    "name": "Premium",
+                    "family": "P",
+                    "capacity": 5,
+                    "subnetId": "[variables('redisSubnetId')]"
+                }
+            }
+        },
+        {
             "type": "Microsoft.Resources/deploymentScripts",
             "apiVersion": "2019-10-01-preview",
             "name": "AKSDeploymentScript",
             "dependsOn": [
                 "basicResourceTemplate",
-                "[parameters('telepathyAKSName')]"
+                "[concat('Microsoft.ContainerService/managedClusters/', parameters('telepathyAKSName'))]"
             ],
             "location": "[resourceGroup().location]",
             "kind": "AzurePowerShell",

@@ -109,6 +109,12 @@
       "metadata": {
         "description": "Subnet for Azure Kubernetes Service"
       }
+    },
+    "redisSubnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Subnet for Azure Redis Cache"
+      }
     }
   },
   "variables": {
@@ -121,7 +127,9 @@
     "telepathyAksSubnetName": "[parameters('aksSubnetName')]",
     "telepathyAksSubnetPrefix": "10.10.0.0/24",
     "telepathyBatchSubnetName": "[parameters('batchSubnetName')]",
-    "telepathyBatchSubnetPrefix": "10.10.1.0/24"
+    "telepathyBatchSubnetPrefix": "10.10.1.0/24",
+    "telepathyRedisSubnetName": "[parameters('redisSubnetName')]",
+    "telepathyRedisSubnetPrefix": "10.10.2.0/24"
   },
   "resources": [
     {
@@ -218,6 +226,12 @@
             "name": "[variables('telepathyAksSubnetName')]",
             "properties": {
               "addressPrefix": "[variables('telepathyAksSubnetPrefix')]"
+            }
+          },
+          {
+            "name": "[variables('telepathyRedisSubnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('telepathyRedisSubnetPrefix')]"
             }
           }
         ]

@@ -45,7 +45,7 @@ spec:
           - name: TELEPATHY_NSQ_HOST
             value: "nsqd:4150"
           - name: TELEPATHY_REDIS_HOST
-            value: v2test.redis.cache.windows.net:6380,password=PNfbW2RD4s9NL6b7VZN7lxoeRScNJsI1XIbTrDeN7Bs=,ssl=True,abortConnect=False
+            value: ($REDIS_CACHE_NAME).redis.cache.windows.net:6380,password=($REDIS_CACHE_ACCESS_KEY),ssl=True,abortConnect=False
             
     
 

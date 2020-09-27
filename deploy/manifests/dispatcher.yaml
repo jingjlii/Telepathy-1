@@ -42,12 +42,10 @@ spec:
             memory: "1Gi" 
         env:
         - name: REDIS_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: redis
-              key: password
+          value: ($REDIS_CACHE_ACCESS_KEY)
+
         - name: REDIS_ADDR
-          value: "v2test.redis.cache.windows.net:6379"
+          value: "($REDIS_CACHE_NAME).redis.cache.windows.net:6379"
 
         - name: NSQ_LOOKUPD
           value: nsqlookupd-0.nsqlookupd:4161 nsqlookupd-1.nsqlookupd:4161 nsqlookupd-2.nsqlookupd:4161
