@@ -14,6 +14,7 @@ $redisAccessKeys = Get-AzRedisCacheKey -ResourceGroupName $resourceGroup -Name $
 [System.Environment]::SetEnvironmentVariable("REDIS_CACHE_NAME", $redisCacheName)
 [System.Environment]::SetEnvironmentVariable("REDIS_CACHE_ACCESS_KEY", $redisAccessKeys.PrimaryKey)
 
+Write-Output $redisAccessKeys
 
 curl "https://codeload.github.com/HyphonGuo/Telepathy/tar.gz/dev-integration" --output "archive.tar.gz"
 tar -xzf "archive.tar.gz"
