@@ -59,7 +59,10 @@ spec:
                 key: redisCacheAccessKey
 
           - name: TELEPATHY_REDIS_HOST
-            value: $(REDIS_CACHE_NAME).redis.cache.windows.net:6380,password=$(REDIS_PASSWORD),ssl=True,abortConnect=False
+            valueFrom:
+              configMapKeyRef:
+                name: redis-config
+                key: redisConnectionString
             
     
 

@@ -207,7 +207,8 @@
     },
     "variables": {
         "vnetSubnetId": "[resourceId(parameters('vnetResourceGroup'),'Microsoft.Network/virtualNetworks/subnets',parameters('vnetName'),parameters('aksSubnetName'))]",
-        "redisSubnetId": "[resourceId(parameters('vnetResourceGroup'),'Microsoft.Network/virtualNetworks/subnets',parameters('vnetName'),parameters('redisSubnetName'))]"
+        "redisSubnetId": "[resourceId(parameters('vnetResourceGroup'),'Microsoft.Network/virtualNetworks/subnets',parameters('vnetName'),parameters('redisSubnetName'))]",
+        "telepathyStorageName": "[concat('storage', uniqueString(resourceGroup().id))]"
     },
     "resources": [
         {
@@ -347,7 +348,7 @@
                 "forceUpdateTag": "[parameters('forceUpdateTag')]",
                 "azPowerShellVersion": "4.5",
                 "primaryScriptURI": "https://raw.githubusercontent.com/HyphonGuo/Telepathy/dev-integration/deploy/scripts/deploy2aks.ps1",
-                "arguments": "[concat('-resourceGroup', ' ', resourceGroup().name, ' ', '-aksClusterName', ' ', parameters('telepathyAKSName'), ' ', '-redisCacheName', ' ', parameters('telepathyRedisCacheName'))]",
+                "arguments": "[concat('-resourceGroup', ' ', resourceGroup().name, ' ', '-aksClusterName', ' ', parameters('telepathyAKSName'), ' ', '-redisCacheName', ' ', parameters('telepathyRedisCacheName'), ' ', '-batchAccountName', ' ', parameters('batchAccountsName'), ' ', '-batchAccountPoolName', ' ', parameters('batchAccountsPoolName'), ' ', '-storageAccountName', ' ', variables('telepathyStorageName'))]",
                 "timeout": "PT1H",
                 "cleanupPreference": "Always",
                 "retentionInterval": "P1D"

@@ -32,7 +32,7 @@ RUN dotnet publish "SessionManager.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 # copy session.config
-COPY ["session/session.json", "."]
+# COPY ["session/session.json", "."]
 
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "SessionManager.dll"]

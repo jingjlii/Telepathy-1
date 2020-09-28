@@ -1,4 +1,4 @@
-param([string] $resourceGroup, [string] $aksClusterName, [string] $redisCacheName)
+param([string] $resourceGroup, [string] $aksClusterName, [string] $redisCacheName, [string] $batchAccountName, [string] $storageAccountName)
 
 # Connect to Azure Kubernetes cluster and install kubectl 
 Import-AzAksCredential -Force -ResourceGroupName $resourceGroup -Name $aksClusterName

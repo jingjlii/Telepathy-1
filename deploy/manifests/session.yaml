@@ -30,7 +30,11 @@ spec:
     spec:
       containers:
         - name: session
-          image: telerepo.azurecr.io/integration-session:v10
+          image: telerepo.azurecr.io/integration-session:v12
+          volumeMounts:
+            - name: session-config
+              mountPath: /app/session-config
+              readOnly: true
           command: ["dotnet", "SessionManager.dll"]
           ports:
           - containerPort: 5001
@@ -45,13 +49,16 @@ spec:
                 key: dispatcherIpAddress
 
           - name: TELEPATHY_SESSION_CONFIG_PATH
-            value: "/app/session.json"
+            value: "/app/session-config/session.json"
 
           - name: TELEPATHY_WORKING_DIR
             value: /app/
             
           - name: TELEPATHY_QUEUE_ADDRESSES
-            value: nsqlookupd-0.nsqlookupd:4161;nsqlookupd-1.nsqlookupd:4161;nsqlookupd-2.nsqlookupd:4161       
-    
-
-          
+            value: nsqlookupd-0.nsqlookupd:4161;nsqlookupd-1.nsqlookupd:4161;nsqlookupd-2.nsqlookupd:4161
+      volumes:
+        - name: session-config
+          secret:
+            secretName: session-secret
+ 
+#kubectl create secret generic session-secret --from-file=./session.json
