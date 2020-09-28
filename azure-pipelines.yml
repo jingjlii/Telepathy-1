@@ -11,8 +11,9 @@ variables:
   dispatcherDockerfile: 'dispatcher/Dockerfile'
   sessionDockerfile: 'Dockerfile.session'
   frontendDockerfile: 'Dockerfile.frontend'
-  resourceGroup: 'haiguoteletest'
+  resourceGroupName: 'haiguoteletest'
   aksClusterName: 'telepathyakscluster'
+  redisCacheName: 'telepathyrediscache'
   
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
@@ -93,11 +94,11 @@ stages:
           azureResourceManagerConnection: 'Subscription-1(a486e243-747b-42de-8c4c-379f8295a746)'
           subscriptionId: 'a486e243-747b-42de-8c4c-379f8295a746'
           action: 'Create Or Update Resource Group'
-          resourceGroupName: '$(resourceGroup)'
+          resourceGroupName: '$(resourceGroupName)'
           location: 'East US'
           templateLocation: 'URL of the file'
           csmFileLink: 'https://github.com/HyphonGuo/Telepathy/blob/dev-integration/deploy/azuredeploy.json'
-          overrideParameters: '-userAssignedIdentity "/subscriptions/a486e243-747b-42de-8c4c-379f8295a746/resourceGroups/haiguoteleid/providers/Microsoft.ManagedIdentity/userAssignedIdentities/haiguotelepathyid" -SSHPublicKey $(SshPublicKey) -servicePrincipalClientId "f510c0e6-16ea-48d3-9c5f-b1a3ecde4055" -servicePrincipalClientSecret $(aksSpSecret)'
+          overrideParameters: '-SSHPublicKey $(SshPublicKey) -servicePrincipalClientId "f510c0e6-16ea-48d3-9c5f-b1a3ecde4055" -servicePrincipalClientSecret $(aksSpSecret) -telepathyAKSName $(aksClusterName) -telepathyRedisCacheName $(redisCacheName)'
           deploymentMode: 'Incremental'
           
   - job: DeployContainer
@@ -110,10 +111,9 @@ stages:
         inputs:
           azureSubscription: 'Subscription-1(a486e243-747b-42de-8c4c-379f8295a746)'
           scriptType: 'pscore'
-          scriptLocation: 'inlineScript'
-          inlineScript: |
-            az aks get-credentials --resource-group $(resourceGroup) --name $(aksClusterName)
-            kubectl apply -f $(Build.SourcesDirectory)/deploy/manifests/
+          scriptLocation: 'scriptPath'
+          scriptPath: 'https://raw.githubusercontent.com/HyphonGuo/Telepathy/dev-integration/deploy/scripts/deploy2aks_pipeline.ps1'
+          arguments: '-resourceGroup $(resourceGroupName) -aksClusterName $(aksClusterName) -redisCacheName $(redisCacheName)'
           addSpnToEnvironment: true
 
 
