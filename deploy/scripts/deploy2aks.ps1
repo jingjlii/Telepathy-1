@@ -11,10 +11,9 @@ if ($env:PATH) {
 }
 
 $redisAccessKeys = Get-AzRedisCacheKey -ResourceGroupName $resourceGroup -Name $redisCacheName
-[System.Environment]::SetEnvironmentVariable("REDIS_CACHE_NAME", $redisCacheName)
-[System.Environment]::SetEnvironmentVariable("REDIS_CACHE_ACCESS_KEY", $redisAccessKeys.PrimaryKey)
-
-Write-Output $redisAccessKeys
+$redisPrimaryKey = $redisAccessKeys.PrimaryKey
+kubectl create configmap redis-config --from-literal redisCacheName=$redisCacheName
+kubectl create secret generic redis-secret --from-literal redisCacheAccessKey=$redisPrimaryKey
 
 curl "https://codeload.github.com/HyphonGuo/Telepathy/tar.gz/dev-integration" --output "archive.tar.gz"
 tar -xzf "archive.tar.gz"
@@ -41,7 +40,8 @@ while ($true) {
 
     Start-Sleep -Seconds 5
 }
+$dispatcherIpAddressString = $dispatcherIpAddress.ToString()
+kubectl create configmap dispatcher-config --from-literal dispatcherIpAddress=$dispatcherIpAddressString
 
-[System.Environment]::SetEnvironmentVariable("DISPATCHER_IP_ADDRESS", $dispatcherIpAddress.ToString())
 kubectl apply -f "Telepathy-dev-integration/deploy/manifests/session.yaml"
 kubectl apply -f "Telepathy-dev-integration/deploy/manifests/frontend.yaml"

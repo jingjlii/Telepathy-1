@@ -42,8 +42,16 @@ spec:
           env:
           - name: TELEPATHY_SESSION_HOST
             value: http://session:5001
+
           - name: TELEPATHY_NSQ_HOST
             value: "nsqd:4150"
+
+          - name: REDIS_CACHE_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: redis-config
+                key: redisCacheName
+
           - name: TELEPATHY_REDIS_HOST
             value: ($REDIS_CACHE_NAME).redis.cache.windows.net:6380,password=($REDIS_CACHE_ACCESS_KEY),ssl=True,abortConnect=False
             

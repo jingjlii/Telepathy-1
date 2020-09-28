@@ -39,11 +39,17 @@ spec:
               cpu: "1" 
           env:
           - name: TELEPATHY_DISPATCHER_IP
-            value: $(DISPATCHER_IP_ADDRESS)
+            valueFrom:
+              configMapKeyRef:
+                name: dispatcher-config
+                key: dispatcherIpAddress
+
           - name: TELEPATHY_SESSION_CONFIG_PATH
             value: "/app/session.json"
+
           - name: TELEPATHY_WORKING_DIR
             value: /app/
+            
           - name: TELEPATHY_QUEUE_ADDRESSES
             value: nsqlookupd-0.nsqlookupd:4161;nsqlookupd-1.nsqlookupd:4161;nsqlookupd-2.nsqlookupd:4161       
     
