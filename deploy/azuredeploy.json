@@ -49,7 +49,7 @@
         },
         "AKSAgentCount": {
             "type": "int",
-            "defaultValue": 3,
+            "defaultValue": 6,
             "metadata": {
                 "description": "The number of nodes for the cluster."
             },
