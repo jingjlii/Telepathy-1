@@ -9,14 +9,13 @@ if ($env:PATH) {
 } else {
     $env:PATH = "/root/.azure-kubectl/"
 }
+curl "https://codeload.github.com/HyphonGuo/Telepathy/tar.gz/dev-integration" --output "archive.tar.gz"
+tar -xzf "archive.tar.gz"
 
 $redisAccessKeys = Get-AzRedisCacheKey -ResourceGroupName $resourceGroup -Name $redisCacheName
 $redisPrimaryKey = $redisAccessKeys.PrimaryKey
 kubectl create configmap redis-config --from-literal redisCacheName=$redisCacheName
 kubectl create secret generic redis-secret --from-literal redisCacheAccessKey=$redisPrimaryKey
-
-curl "https://codeload.github.com/HyphonGuo/Telepathy/tar.gz/dev-integration" --output "archive.tar.gz"
-tar -xzf "archive.tar.gz"
 
 kubectl apply -f "Telepathy-dev-integration/deploy/manifests/dispatcher.yaml"
 
