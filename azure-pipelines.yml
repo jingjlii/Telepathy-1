@@ -74,10 +74,10 @@ stages:
           $(Build.BuildId)
           latest
 
-- stage: Deploy
-  displayName: Deploy stage
+- stage: DeployResources
+  displayName: Deploy resources
   # Enable parallel stages
-  dependsOn: []
+  dependsOn: Build
 
   jobs:
   - job: ARMDeployment
@@ -112,12 +112,13 @@ stages:
             -batchAccountsPoolName "$(batchPoolName)"
             -telepathyStorageName "$(storageAccountName)"
           deploymentMode: 'Incremental'
-          
+
+- stage: AKSDeployment
+  displayName: AKS Deployment
+
+  jobs:       
   - job: DeployContainer
     displayName: Deploy to AKS
-    dependsOn: |
-      Build
-      ARMDeployment
     pool:
       vmImage: $(vmImageName)
     steps:
