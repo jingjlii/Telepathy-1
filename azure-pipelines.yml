@@ -117,7 +117,7 @@ stages:
   displayName: AKS Deployment
   dependsOn:
     - Build
-    - ARMDeployment
+    - DeployResources
 
   jobs:       
   - job: DeployContainer
