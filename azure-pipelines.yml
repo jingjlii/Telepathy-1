@@ -1,16 +1,20 @@
 trigger:
-- master
+- dev-integration
+
+pr:
+- dev-integration
 
 resources:
 - repo: self
 
 variables:
-  # Container registry service connection established during pipeline creation
   dockerRegistryServiceConnection: 'fdcc5225-3a32-4448-bfb1-61a524dbe2a1'
   containerRegistry: 'telerepo.azurecr.io'
+
   dispatcherDockerfile: 'dispatcher/Dockerfile'
   sessionDockerfile: 'Dockerfile.session'
   frontendDockerfile: 'Dockerfile.frontend'
+
   resourceGroupName: 'haiguoteletest'
   aksClusterName: 'telepathyakscluster'
   redisCacheName: 'telepathyrediscache'
@@ -23,7 +27,7 @@ variables:
 
 stages:
 
-- stage: Build
+- stage: BuildImages
   displayName: Build Images
   jobs:
   - job: buildDispatcher
@@ -113,10 +117,10 @@ stages:
             -telepathyStorageName "$(storageAccountName)"
           deploymentMode: 'Incremental'
 
-- stage: AKSDeployment
+- stage: DeployApplications
   displayName: AKS Deployment
   dependsOn:
-    - Build
+    - BuildImages
     - DeployResources
 
   jobs:       

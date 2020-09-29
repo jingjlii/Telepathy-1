@@ -1,13 +1,14 @@
 # Microsoft Telepathy
 
-[![Build Status](https://dev.azure.com/t-haiguo/TestProject/_apis/build/status/HyphonGuo.pipelines-javascript-docker?branchName=master)](https://dev.azure.com/t-haiguo/TestProject/_build/latest?definitionId=5&branchName=master)
+[![Build Status](https://dev.azure.com/t-haiguo/TestProject/_apis/build/status/HyphonGuo.Telepathy?branchName=dev-integration)](https://dev.azure.com/t-haiguo/TestProject/_build/latest?definitionId=7&branchName=dev-integration)
 
-Microsoft Telepathy is a SOA runtime framework works in a cloud native way, enables running high-throughput and low-latency calculation workload in Azure. 
+Microsoft Telepathy is a SOA runtime framework works in a cloud native way, enables running high-throughput and low-latency calculation workload in Azure.
 
 ## Deploy to Azure
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FHyphonGuo%2FTelepathy%2Fdev-integration%2Fdeploy%2Fazuredeploy.release.json)
 [![Visualize](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/visualizebutton.svg?sanitize=true)](http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2FHyphonGuo%2FTelepathy%2Fdev-integration%2Fdeploy%2Fazuredeploy.release.json)
+
 ## Current State
 
 We are now focusing on our new v2 design and implementation. We have pre-relased our v1.0.0.final version.
