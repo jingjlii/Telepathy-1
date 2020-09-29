@@ -101,7 +101,15 @@ stages:
           location: 'East US'
           templateLocation: 'URL of the file'
           csmFileLink: 'https://raw.githubusercontent.com/HyphonGuo/Telepathy/dev-integration/deploy/azuredeploy.json'
-          overrideParameters: '-SSHPublicKey $(SshPublicKey) -servicePrincipalClientId $(aksSpAppId) -servicePrincipalClientSecret $(aksSpSecret) -telepathyAKSName $(aksClusterName) -telepathyRedisCacheName $(redisCacheName) -batchAccountsName $(batchAccountName) -batchAccountsPoolName $(batchPoolName) -telepathyStorageName $(storageAccountName)'
+          overrideParameters: >
+            -SSHPublicKey "$(SshPublicKey)"
+            -servicePrincipalClientId "$(aksSpAppId)"
+            -servicePrincipalClientSecret "$(aksSpSecret)"
+            -telepathyAKSName "$(aksClusterName)"
+            -telepathyRedisCacheName "$(redisCacheName)"
+            -batchAccountsName "$(batchAccountName)"
+            -batchAccountsPoolName "$(batchPoolName)"
+            -telepathyStorageName "$(storageAccountName)"
           deploymentMode: 'Incremental'
           
   - job: DeployContainer
@@ -116,7 +124,13 @@ stages:
           scriptType: 'pscore'
           scriptLocation: 'scriptPath'
           scriptPath: 'https://raw.githubusercontent.com/HyphonGuo/Telepathy/dev-integration/deploy/scripts/deploy2aks_pipeline.ps1'
-          arguments: '-resourceGroup $(resourceGroupName) -aksClusterName $(aksClusterName) -redisCacheName $(redisCacheName) -batchAccountName $(batchAccountName) -batchPoolName $(batchPoolName) -storageAccountName $(storageAccountName)'
+          arguments: >
+            -resourceGroup "$(resourceGroupName)"
+            -aksClusterName "$(aksClusterName)"
+            -redisCacheName "$(redisCacheName)"
+            -batchAccountName "$(batchAccountName)"
+            -batchPoolName "$(batchPoolName)"
+            -storageAccountName "$(storageAccountName)"
           addSpnToEnvironment: true
 
 
