@@ -76,6 +76,7 @@ stages:
 
 - stage: Deploy
   displayName: Deploy stage
+  dependsOn: []
 
   jobs:
   - job: ARMDeployment
@@ -99,7 +100,7 @@ stages:
           resourceGroupName: '$(resourceGroupName)'
           location: 'East US'
           templateLocation: 'URL of the file'
-          csmFileLink: 'https://github.com/HyphonGuo/Telepathy/blob/dev-integration/deploy/azuredeploy.json'
+          csmFileLink: 'https://raw.githubusercontent.com/HyphonGuo/Telepathy/dev-integration/deploy/azuredeploy.json'
           overrideParameters: '-SSHPublicKey $(SshPublicKey) -servicePrincipalClientId $(aksSpAppId) -servicePrincipalClientSecret $(aksSpSecret) -telepathyAKSName $(aksClusterName) -telepathyRedisCacheName $(redisCacheName) -batchAccountsName $(batchAccountName) -batchAccountsPoolName $(batchPoolName) -telepathyStorageName $(storageAccountName)'
           deploymentMode: 'Incremental'
           
