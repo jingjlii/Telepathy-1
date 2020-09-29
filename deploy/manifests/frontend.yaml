@@ -60,7 +60,7 @@ spec:
 
           - name: TELEPATHY_REDIS_HOST
             valueFrom:
-              configMapKeyRef:
+              secretKeyRef:
                 name: redis-config
                 key: redisConnectionString
             

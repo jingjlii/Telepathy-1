@@ -204,7 +204,8 @@
     },
     "variables": {
         "aksSubnetId": "[resourceId(parameters('vnetResourceGroup'),'Microsoft.Network/virtualNetworks/subnets',parameters('vnetName'),parameters('aksSubnetName'))]",
-        "redisSubnetId": "[resourceId(parameters('vnetResourceGroup'),'Microsoft.Network/virtualNetworks/subnets',parameters('vnetName'),parameters('redisSubnetName'))]"
+        "redisSubnetId": "[resourceId(parameters('vnetResourceGroup'),'Microsoft.Network/virtualNetworks/subnets',parameters('vnetName'),parameters('redisSubnetName'))]",
+        "basicTemplateUrl": "https://raw.githubusercontent.com/HyphonGuo/Telepathy/dev-integration/deploy/azuredeploy.basic.json"
     },
     "resources": [
         {
@@ -214,7 +215,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/HyphonGuo/Telepathy/dev-integration/deploy/azuredeploy.basic.json"
+                    "uri": "[variables('basicTemplateUrl')]"
                 },
                 "parameters": {
                     "telepathyStorageType": {

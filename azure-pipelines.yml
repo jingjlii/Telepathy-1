@@ -10,11 +10,11 @@ resources:
 variables:
   dockerRegistryServiceConnection: 'fdcc5225-3a32-4448-bfb1-61a524dbe2a1'
   containerRegistry: 'telerepo.azurecr.io'
-
   dispatcherDockerfile: 'dispatcher/Dockerfile'
   sessionDockerfile: 'Dockerfile.session'
   frontendDockerfile: 'Dockerfile.frontend'
 
+  armTemplateUri: 'https://raw.githubusercontent.com/HyphonGuo/Telepathy/dev-integration/deploy/azuredeploy.json'
   resourceGroupName: 'haiguoteletest'
   aksClusterName: 'telepathyakscluster'
   redisCacheName: 'telepathyrediscache'
@@ -22,7 +22,9 @@ variables:
   batchPoolName: 'telepathypipelinebatchpool'
   storageAccountName: 'telepathystorage'
   
-  # Agent VM image name
+  # vault for secret storage
+  keyVaultName: 'haiguopipelinevault'
+  
   vmImageName: 'ubuntu-latest'
 
 stages:
@@ -92,7 +94,7 @@ stages:
       - task: AzureKeyVault@1
         inputs:
           azureSubscription: 'Subscription-1(a486e243-747b-42de-8c4c-379f8295a746)'
-          KeyVaultName: 'haiguopipelinevault'
+          KeyVaultName: '$(keyVaultName)'
           SecretsFilter: '*'
           RunAsPreJob: true
 
@@ -105,7 +107,7 @@ stages:
           resourceGroupName: '$(resourceGroupName)'
           location: 'East US'
           templateLocation: 'URL of the file'
-          csmFileLink: 'https://raw.githubusercontent.com/HyphonGuo/Telepathy/dev-integration/deploy/azuredeploy.json'
+          csmFileLink: '$(armTemplateUri)'
           overrideParameters: >
             -SSHPublicKey "$(SshPublicKey)"
             -servicePrincipalClientId "$(aksSpAppId)"

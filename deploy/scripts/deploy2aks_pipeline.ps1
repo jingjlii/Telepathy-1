@@ -30,8 +30,8 @@ $sessionJson = @"
 Out-File -InputObject $sessionJson -FilePath "./session.json"
 
 # Create k8s configmap and secret
-kubectl create configmap redis-config --from-literal redisCacheName=$redisCacheName --from-literal redisConnectionString=$redisConnectionString
-kubectl create secret generic redis-secret --from-literal redisCacheAccessKey=$redisPrimaryKey
+kubectl create configmap redis-config --from-literal redisCacheName=$redisCacheName
+kubectl create secret generic redis-secret --from-literal redisCacheAccessKey=$redisPrimaryKey --from-literal redisConnectionString=$redisConnectionString
 kubectl create secret generic session-secret --from-file=./session.json
 
 kubectl apply -f "$sourcesDirectory/deploy/manifests/dispatcher.yaml"

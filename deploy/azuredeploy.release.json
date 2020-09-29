@@ -208,7 +208,10 @@
     "variables": {
         "vnetSubnetId": "[resourceId(parameters('vnetResourceGroup'),'Microsoft.Network/virtualNetworks/subnets',parameters('vnetName'),parameters('aksSubnetName'))]",
         "redisSubnetId": "[resourceId(parameters('vnetResourceGroup'),'Microsoft.Network/virtualNetworks/subnets',parameters('vnetName'),parameters('redisSubnetName'))]",
-        "telepathyStorageName": "[concat('storage', uniqueString(resourceGroup().id))]"
+        "telepathyStorageName": "[concat('storage', uniqueString(resourceGroup().id))]",
+        "deployScriptUrl": "https://raw.githubusercontent.com/HyphonGuo/Telepathy/dev-integration/deploy/scripts/deploy2aks.ps1",
+        "basicTemplateUrl": "https://raw.githubusercontent.com/HyphonGuo/Telepathy/dev-integration/deploy/azuredeploy.basic.json",
+        "telepathyRepoUrl": "https://codeload.github.com/HyphonGuo/Telepathy/tar.gz/dev-integration"
     },
     "resources": [
         {
@@ -218,7 +221,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/HyphonGuo/Telepathy/dev-integration/deploy/azuredeploy.basic.json"
+                    "uri": "[variables('basicTemplateUrl')]"
                 },
                 "parameters": {
                     "telepathyStorageType": {
@@ -347,8 +350,8 @@
             "properties": {
                 "forceUpdateTag": "[parameters('forceUpdateTag')]",
                 "azPowerShellVersion": "4.5",
-                "primaryScriptURI": "https://raw.githubusercontent.com/HyphonGuo/Telepathy/dev-integration/deploy/scripts/deploy2aks.ps1",
-                "arguments": "[concat('-resourceGroup', ' ', resourceGroup().name, ' ', '-aksClusterName', ' ', parameters('telepathyAKSName'), ' ', '-redisCacheName', ' ', parameters('telepathyRedisCacheName'), ' ', '-batchAccountName', ' ', parameters('batchAccountsName'), ' ', '-batchPoolName', ' ', parameters('batchAccountsPoolName'), ' ', '-storageAccountName', ' ', variables('telepathyStorageName'))]",
+                "primaryScriptURI": "[variables('deployScriptUrl')]",
+                "arguments": "[concat('-telepathyRepoUrl', ' ', variables('telepathyRepoUrl'), ' ', '-resourceGroup', ' ', resourceGroup().name, ' ', '-aksClusterName', ' ', parameters('telepathyAKSName'), ' ', '-redisCacheName', ' ', parameters('telepathyRedisCacheName'), ' ', '-batchAccountName', ' ', parameters('batchAccountsName'), ' ', '-batchPoolName', ' ', parameters('batchAccountsPoolName'), ' ', '-storageAccountName', ' ', variables('telepathyStorageName'))]",
                 "timeout": "PT1H",
                 "cleanupPreference": "Always",
                 "retentionInterval": "P1D"
