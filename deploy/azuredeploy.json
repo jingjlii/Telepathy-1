@@ -71,13 +71,13 @@
             "defaultValue": "telepathyuser"
         },
         "SSHPublicKey": {
-            "type": "string",
+            "type": "securestring",
             "metadata": {
                 "description": "Configure all linux machines with the SSH RSA public key string."
             }
         },
         "servicePrincipalClientId": {
-            "type": "string",
+            "type": "securestring",
             "metadata": {
                 "description": "Service Principal Client ID used by AKS."
             }

@@ -76,6 +76,7 @@ stages:
 
 - stage: Deploy
   displayName: Deploy stage
+  # Enable parallel stages
   dependsOn: []
 
   jobs:
@@ -114,7 +115,9 @@ stages:
           
   - job: DeployContainer
     displayName: Deploy to AKS
-    dependsOn: ARMDeployment
+    dependsOn: |
+      Build
+      ARMDeployment
     pool:
       vmImage: $(vmImageName)
     steps:
@@ -123,7 +126,7 @@ stages:
           azureSubscription: 'Subscription-1(a486e243-747b-42de-8c4c-379f8295a746)'
           scriptType: 'pscore'
           scriptLocation: 'scriptPath'
-          scriptPath: 'https://raw.githubusercontent.com/HyphonGuo/Telepathy/dev-integration/deploy/scripts/deploy2aks_pipeline.ps1'
+          scriptPath: '$(Build.SourcesDirectory)/deploy/scripts/deploy2aks_pipeline.ps1'
           arguments: >
             -resourceGroup "$(resourceGroupName)"
             -aksClusterName "$(aksClusterName)"
