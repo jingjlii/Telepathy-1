@@ -31,7 +31,7 @@ spec:
     spec:
       containers:
         - name: fr
-          image: telerepo.azurecr.io/integration-fr:v3
+          image: telerepo.azurecr.io/telepathyfrontend
           command: ["dotnet", "Frontend.dll"]
           args: ["9100"]
           ports:

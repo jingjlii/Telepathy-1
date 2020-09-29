@@ -30,7 +30,7 @@ spec:
     spec:
       containers:
         - name: session
-          image: telerepo.azurecr.io/integration-session:v12
+          image: telerepo.azurecr.io/telepathysession
           volumeMounts:
             - name: session-config
               mountPath: /app/session-config
@@ -53,7 +53,7 @@ spec:
 
           - name: TELEPATHY_WORKING_DIR
             value: /app/
-            
+
           - name: TELEPATHY_QUEUE_ADDRESSES
             value: nsqlookupd-0.nsqlookupd:4161;nsqlookupd-1.nsqlookupd:4161;nsqlookupd-2.nsqlookupd:4161
       volumes:

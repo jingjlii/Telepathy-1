@@ -31,7 +31,7 @@ spec:
     spec:
       containers:
       - name: poc
-        image: telerepo.azurecr.io/integration-disp:v0
+        image: telerepo.azurecr.io/telepathydispatcher
         command: ["/go/bin/cmd"]
         args: ["-p", "50051"]
         ports:
