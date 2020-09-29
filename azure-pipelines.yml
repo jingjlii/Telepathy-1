@@ -24,7 +24,7 @@ variables:
 stages:
 
 - stage: Build
-  displayName: Build stage
+  displayName: Build Images
   jobs:
   - job: buildDispatcher
     displayName: Build dispatcher image
@@ -75,9 +75,9 @@ stages:
           latest
 
 - stage: DeployResources
-  displayName: Deploy resources
+  displayName: ARM Deployment
   # Enable parallel stages
-  dependsOn: Build
+  dependsOn: []
 
   jobs:
   - job: ARMDeployment
@@ -122,20 +122,20 @@ stages:
     pool:
       vmImage: $(vmImageName)
     steps:
-      - task: AzureCLI@2
+      - task: AzurePowerShell@5
         inputs:
           azureSubscription: 'Subscription-1(a486e243-747b-42de-8c4c-379f8295a746)'
-          scriptType: 'pscore'
-          scriptLocation: 'scriptPath'
-          scriptPath: '$(Build.SourcesDirectory)/deploy/scripts/deploy2aks_pipeline.ps1'
-          arguments: >
+          ScriptType: 'FilePath'
+          ScriptPath: '$(Build.SourcesDirectory)/deploy/scripts/deploy2aks_pipeline.ps1'
+          ScriptArguments: >
             -resourceGroup "$(resourceGroupName)"
             -aksClusterName "$(aksClusterName)"
             -redisCacheName "$(redisCacheName)"
             -batchAccountName "$(batchAccountName)"
             -batchPoolName "$(batchPoolName)"
             -storageAccountName "$(storageAccountName)"
-          addSpnToEnvironment: true
+          pwsh: true
+          azurePowerShellVersion: 'LatestVersion'
 
 
 
