@@ -33,14 +33,12 @@
     },
     "batchAccountsName": {
       "type": "string",
-      "defaultValue": "[concat(toLower(uniqueString(resourceGroup().id)), 'batch')]",
       "metadata": {
         "description": "Batch Account Name"
       }
     },
     "batchAccountsPoolName": {
       "type": "string",
-      "defaultValue": "[concat(toLower(uniqueString(resourceGroup().id)), 'batchpool')]",
       "metadata": {
         "description": "Batch Account Pool Name"
       }
@@ -86,7 +84,6 @@
     },
     "vnetResourceGroup": {
       "type": "string",
-      "defaultValue": "[resourceGroup().name]",
       "metadata": {
         "description": "Resource group in which the vnet locates"
       }
@@ -115,11 +112,17 @@
       "metadata": {
         "description": "Subnet for Azure Redis Cache"
       }
+    },
+    "telepathyStorageName": {
+      "type": "string",
+      "defaultValue": "[concat('storage', uniqueString(resourceGroup().id))]",
+      "metadata": {
+        "description": "Storage Account Name"
+      }
     }
   },
   "variables": {
     "telepathyLogAnalyticsWorkspaceName": "[concat('telepathyLogAnalyticsWorkspace', uniqueString(resourceGroup().id))]",
-    "telepathyStorageName": "[concat('storage', uniqueString(resourceGroup().id))]",
     "telepathyVMSubnetRef": "[concat(variables('telepathyVMVnetID'), '/subnets/', variables('telepathyBatchSubnetName'))]",
     "telepathyVMVnetID": "[resourceId(variables('telepathyVnetResourceGroup'),'Microsoft.Network/virtualNetworks',parameters('vnetName'))]",
     "telepathyVnetPrefix": "10.10.0.0/16",
@@ -184,7 +187,7 @@
       }
     },
     {
-      "name": "[variables('telepathyStorageName')]",
+      "name": "[parameters('telepathyStorageName')]",
       "type": "Microsoft.Storage/storageAccounts",
       "location": "[resourceGroup().location]",
       "apiVersion": "2019-04-01",
@@ -252,11 +255,11 @@
   "outputs": {
     "storageName": {
       "type": "string",
-      "value": "[variables('telepathyStorageName')]"
+      "value": "[parameters('telepathyStorageName')]"
     },
     "storageAccountKey": {
       "type": "string",
-      "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('telepathyStorageName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]"
+      "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('telepathyStorageName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]"
     },
     "batchAccountKey": {
       "type": "string",

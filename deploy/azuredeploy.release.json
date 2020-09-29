@@ -114,14 +114,14 @@
         },
         "batchAccountsName": {
             "type": "string",
-            "defaultValue": "[concat(toLower(uniqueString(resourceGroup().id)), 'batch')]",
+            "defaultValue": "[concat('batch', toLower(uniqueString(resourceGroup().id)))]",
             "metadata": {
                 "description": "Batch Account Name"
             }
         },
         "batchAccountsPoolName": {
             "type": "string",
-            "defaultValue": "[concat(toLower(uniqueString(resourceGroup().id)), 'batchpool')]",
+            "defaultValue": "[concat('batchpool', toLower(uniqueString(resourceGroup().id)))]",
             "metadata": {
                 "description": "Batch Account Pool Name"
             }
@@ -348,7 +348,7 @@
                 "forceUpdateTag": "[parameters('forceUpdateTag')]",
                 "azPowerShellVersion": "4.5",
                 "primaryScriptURI": "https://raw.githubusercontent.com/HyphonGuo/Telepathy/dev-integration/deploy/scripts/deploy2aks.ps1",
-                "arguments": "[concat('-resourceGroup', ' ', resourceGroup().name, ' ', '-aksClusterName', ' ', parameters('telepathyAKSName'), ' ', '-redisCacheName', ' ', parameters('telepathyRedisCacheName'), ' ', '-batchAccountName', ' ', parameters('batchAccountsName'), ' ', '-batchAccountPoolName', ' ', parameters('batchAccountsPoolName'), ' ', '-storageAccountName', ' ', variables('telepathyStorageName'))]",
+                "arguments": "[concat('-resourceGroup', ' ', resourceGroup().name, ' ', '-aksClusterName', ' ', parameters('telepathyAKSName'), ' ', '-redisCacheName', ' ', parameters('telepathyRedisCacheName'), ' ', '-batchAccountName', ' ', parameters('batchAccountsName'), ' ', '-batchPoolName', ' ', parameters('batchAccountsPoolName'), ' ', '-storageAccountName', ' ', variables('telepathyStorageName'))]",
                 "timeout": "PT1H",
                 "cleanupPreference": "Always",
                 "retentionInterval": "P1D"

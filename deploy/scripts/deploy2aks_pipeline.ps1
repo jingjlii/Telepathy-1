@@ -1,23 +1,40 @@
-param([string] $resourceGroup, [string] $aksClusterName, [string] $redisCacheName, [string] $batchAccountName, [string] $storageAccountName)
+param([string] $resourceGroup, [string] $aksClusterName, [string] $redisCacheName, [string] $batchAccountName, [string] $storageAccountName, [string] $batchPoolName)
 
-# Connect to Azure Kubernetes cluster and install kubectl 
+# Connect to Azure Kubernetes cluster 
 Import-AzAksCredential -Force -ResourceGroupName $resourceGroup -Name $aksClusterName
-# Install-AzAksKubectl -Force
-# chmod 777 "/root/.azure-kubectl/kubectl"
-# if ($env:PATH) {
-#     $env:PATH += ":/root/.azure-kubectl/"
-# } else {
-#     $env:PATH = "/root/.azure-kubectl/"
-# }
-# curl "https://codeload.github.com/HyphonGuo/Telepathy/tar.gz/dev-integration" --output "archive.tar.gz"
-# tar -xzf "archive.tar.gz"
 
+# Fetch information of required resources from Azure
 $redisAccessKeys = Get-AzRedisCacheKey -ResourceGroupName $resourceGroup -Name $redisCacheName
 $redisPrimaryKey = $redisAccessKeys.PrimaryKey
-kubectl create configmap redis-config --from-literal redisCacheName=$redisCacheName
-kubectl create secret generic redis-secret --from-literal redisCacheAccessKey=$redisPrimaryKey
+$redisConnectionString = "$redisCacheName.redis.cache.windows.net:6380,password=$redisPrimaryKey,ssl=True,abortConnect=False"
 
-kubectl apply -f "Telepathy-dev-integration/deploy/manifests/dispatcher.yaml"
+$batchAccountContext = Get-AzBatchAccount -ResourceGroupName $resourceGroup -Name $batchAccountName
+$batchAccountKeys = Get-AzBatchAccountKeys -ResourceGroupName $resourceGroup -Name $batchAccountName
+$storageAccountKeys = Get-AzStorageAccountKey -ResourceGroupName $resourceGroup -Name $storageAccountName
+$batchAccountKey = $batchAccountKeys.PrimaryAccountKey
+$storageAccountKey = $storageAccountKeys.Value[0]
+$batchAccountEndpoint = $batchAccountContext.AccountEndpoint
+$storageAccountConnectionString = "DefaultEndpointsProtocol=https;AccountName=$storageAccountName;AccountKey=$storageAccountKey;EndpointSuffix=core.windows.net"
+
+$sessionJson = @"
+{
+    "RedisConnectionKey": $redisConnectionString,
+    "AzureBatchServiceUrl": $batchAccountEndpoint,
+    "AzureBatchAccountName": $batchAccountName,
+    "AzureBatchAccountKey": $batchAccountKey,
+    "AzureBatchPoolName": $batchPoolName,
+    "SoaStorageConnectionString": $storageAccountConnectionString
+}
+"@
+
+Out-File -InputObject $sessionJson -FilePath "./session.json"
+
+# Create k8s configmap and secret
+kubectl create configmap redis-config --from-literal redisCacheName=$redisCacheName --from-literal redisConnectionString=$redisConnectionString
+kubectl create secret generic redis-secret --from-literal redisCacheAccessKey=$redisPrimaryKey
+kubectl create secret generic session-secret --from-file=./session.json
+
+kubectl apply -f "$(Build.)/deploy/manifests/dispatcher.yaml"
 
 $dispatcherIpAddress = [System.Net.IPAddress]::None
 
@@ -34,7 +51,7 @@ while ($true) {
     }
 
     if ($isValidIpAddress) {
-        break;
+        break
     }
 
     Start-Sleep -Seconds 5

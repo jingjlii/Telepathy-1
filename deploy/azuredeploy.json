@@ -124,6 +124,13 @@
             "type": "string",
             "defaultValue": "STANDARD_D2_V2"
         },
+        "telepathyStorageName": {
+            "type": "string",
+            "defaultValue": "[concat('storage', uniqueString(resourceGroup().id))]",
+            "metadata": {
+                "description": "Storage Account Name"
+            }
+        },
         "maxTasksPerNode": {
             "type": "int",
             "defaultValue": 1,
@@ -254,6 +261,9 @@
                     },
                     "redisSubnetName": {
                         "value": "[parameters('redisSubnetName')]"
+                    },
+                    "telepathyStorageName" : {
+                        "value": "[parameters('telepathyStorageName')]"
                     }
                 }
             }
