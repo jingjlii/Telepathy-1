@@ -34,7 +34,7 @@ kubectl create configmap redis-config --from-literal redisCacheName=$redisCacheN
 kubectl create secret generic redis-secret --from-literal redisCacheAccessKey=$redisPrimaryKey
 kubectl create secret generic session-secret --from-file=./session.json
 
-kubectl apply -f "$(Build.)/deploy/manifests/dispatcher.yaml"
+kubectl apply -f "$(Build.SourcesDirectory)/deploy/manifests/dispatcher.yaml"
 
 $dispatcherIpAddress = [System.Net.IPAddress]::None
 
@@ -59,5 +59,5 @@ while ($true) {
 $dispatcherIpAddressString = $dispatcherIpAddress.ToString()
 kubectl create configmap dispatcher-config --from-literal dispatcherIpAddress=$dispatcherIpAddressString
 
-kubectl apply -f "Telepathy-dev-integration/deploy/manifests/session.yaml"
-kubectl apply -f "Telepathy-dev-integration/deploy/manifests/frontend.yaml"
+kubectl apply -f "$(Build.SourcesDirectory)/deploy/manifests/session.yaml"
+kubectl apply -f "$(Build.SourcesDirectory)/deploy/manifests/frontend.yaml"
