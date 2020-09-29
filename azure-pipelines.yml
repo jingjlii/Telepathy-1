@@ -124,7 +124,7 @@ stages:
     - DeployResources
 
   jobs:       
-  - job: DeployContainer
+  - job: deployContainer
     displayName: Deploy to AKS
     pool:
       vmImage: $(vmImageName)
