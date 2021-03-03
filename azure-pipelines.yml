@@ -14,7 +14,7 @@ variables:
   sessionDockerfile: 'Dockerfile.session'
   frontendDockerfile: 'Dockerfile.frontend'
 
-  armTemplateUri: 'https://raw.githubusercontent.com/HyphonGuo/Telepathy/dev-integration/deploy/azuredeploy.json'
+  armTemplateUri: 'https://raw.githubusercontent.com/jingjlii/Telepathy-1/dev-integration/deploy/azuredeploy.basic.json'
   resourceGroupName: 'haiguoteletest'
   aksClusterName: 'telepathyakscluster'
   redisCacheName: 'telepathyrediscache'
