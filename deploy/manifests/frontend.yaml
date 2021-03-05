@@ -31,7 +31,7 @@ spec:
     spec:
       containers:
         - name: fr
-          image: telerepo.azurecr.io/telepathyfrontend
+          image: telepathy.azurecr.io/dev/frontend
           command: ["dotnet", "Frontend.dll"]
           args: ["9100"]
           ports:
@@ -61,7 +61,7 @@ spec:
           - name: TELEPATHY_REDIS_HOST
             valueFrom:
               secretKeyRef:
-                name: redis-config
+                name: redis-secret
                 key: redisConnectionString
             
     

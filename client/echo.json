@@ -1,0 +1,8 @@
+{
+  "ServiceTimeout": 3000,
+  "ServiceConcurrency": 1,
+  "PrefetchCount": 10,
+  "ServiceFullPath": "echo\\EchoServer.dll",
+  "ServiceInitializeTimeout": 0,
+  "ServiceLanguage": "csharp"
+}

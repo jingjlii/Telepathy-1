@@ -30,7 +30,7 @@ spec:
     spec:
       containers:
         - name: session
-          image: telerepo.azurecr.io/telepathysession
+          image: telepathy.azurecr.io/dev/session
           volumeMounts:
             - name: session-config
               mountPath: /app/session-config
